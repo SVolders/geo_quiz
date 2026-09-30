@@ -16,43 +16,37 @@ final belgium = Country(
   code: 'BE',
   name: 'Belgium',
   population: 11867634,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/Belgium#/media/File:Flag_of_Belgium.svg',
+  flagSvg: 'https://flagcdn.com/be.svg',
 );
 final germany = Country(
   code: 'DE',
   name: 'Germany',
   population: 83467117,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/Germany#/media/File:Flag_of_Germany.svg',
+  flagSvg: 'https://flagcdn.com/de.svg',
 );
 final netherlands = Country(
   code: 'NL',
   name: 'Netherlands',
   population: 18130208,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/Netherlands#/media/File:Flag_of_the_Netherlands.svg',
+  flagSvg: 'https://flagcdn.com/nl.svg',
 );
 final france = Country(
   code: 'FR',
   name: 'France',
   population: 69081996,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/France#/media/File:Flag_of_France.svg',
+  flagSvg: 'https://flagcdn.com/fr.svg',
 );
 final luxembourg = Country(
   code: 'LU',
   name: 'Luxembourg',
   population: 693916,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/Luxembourg#/media/File:Flag_of_Luxembourg.svg',
+  flagSvg: 'https://flagcdn.com/lu.svg',
 );
 final switzerland = Country(
   code: 'CH',
   name: 'Switzerland',
   population: 9154242,
-  flagSvg:
-      'https://en.wikipedia.org/wiki/Switzerland#/media/File:Flag_of_Switzerland_(Pantone).svg',
+  flagSvg: 'https://flagcdn.com/ch.svg',
 );
 
 final List<Country> allCountries = [

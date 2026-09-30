@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geo_quiz/data/countries.dart';
 import 'package:geo_quiz/features/flag_quiz/application/flag_quiz_viewmodel.dart';
+import 'package:geo_quiz/features/flag_quiz/presentation/widgets/flag_button.dart';
 
 class FlagQuiz extends StatefulWidget {
   const FlagQuiz({super.key});
@@ -10,70 +12,150 @@ class FlagQuiz extends StatefulWidget {
 
 class _FlagQuizState extends State<FlagQuiz> {
   final FlagQuizViewModel viewModel = FlagQuizViewModel();
+  Country? selected;
 
   void _onReset() {
+    setState(() => selected = null);
     viewModel.reset();
   }
 
-  void _onOptionPressed(int index) {
-    print(viewModel.options[index].name);
+  void _onOptionPressed(Country country) {
+    setState(() => selected = country);
   }
 
   @override
-  void initState() {
-    super.initState();
-    viewModel.setOptions();
+  void dispose() {
+    viewModel.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: viewModel,
-      builder: (context, _) {
-        return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          TextButton(
-                            onPressed: () => _onOptionPressed(0),
-                            child: Text(viewModel.options[0].name),
-                          ),
-                          TextButton(
-                            onPressed: () => _onOptionPressed(1),
-                            child: Text(viewModel.options[1].name),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          TextButton(
-                            onPressed: () => _onOptionPressed(2),
-                            child: Text(viewModel.options[2].name),
-                          ),
-                          TextButton(
-                            onPressed: () => _onOptionPressed(3),
-                            child: Text(viewModel.options[3].name),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+      builder: (context, _) =>
+          Scaffold(body: SafeArea(child: _buildContent(context))),
+    );
+  }
 
-                Text(viewModel.answer?.name ?? 'No answer'),
-                TextButton(onPressed: _onReset, child: Text("Reset")),
-              ],
+  Widget _buildContent(BuildContext context) {
+    if (viewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final answer = viewModel.answer;
+    if (answer == null || viewModel.options.isEmpty) {
+      return const Center(child: Text('No flags available'));
+    }
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 20),
+              _buildQuestion(context, answer),
+              const SizedBox(height: 28),
+              _buildOptions(answer),
+              const SizedBox(height: 20),
+              _buildFeedback(context, answer),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'FLAG QUIZ',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.4,
             ),
           ),
+        ),
+        IconButton(
+          onPressed: _onReset,
+          tooltip: 'New question',
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuestion(BuildContext context, Country answer) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Find the flag for',
+          style: textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          answer.name,
+          style: textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOptions(Country answer) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: viewModel.options.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+        childAspectRatio: 1.45,
+      ),
+      itemBuilder: (context, index) {
+        final country = viewModel.options[index];
+        return FlagButton(
+          country: country,
+          isSelected: selected == country,
+          isCorrect: country.code == answer.code,
+          onPressed: () => _onOptionPressed(country),
         );
       },
+    );
+  }
+
+  Widget _buildFeedback(BuildContext context, Country answer) {
+    final choice = selected;
+    if (choice == null) return const SizedBox.shrink();
+
+    final isCorrect = choice.code == answer.code;
+    final colors = Theme.of(context).colorScheme;
+
+    return Text(
+      isCorrect ? 'Correct!' : 'Not quite. Try another flag.',
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        color: isCorrect ? colors.primary : colors.error,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 }

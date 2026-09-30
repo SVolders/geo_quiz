@@ -23,7 +23,6 @@ class FlagQuizViewModel extends ChangeNotifier {
           ? options[Random().nextInt(options.length)]
           : null;
     } catch (e) {
-      print('Error loading countries');
       options = [];
     }
 
