@@ -52,10 +52,6 @@ class _FlagQuizState extends State<FlagQuiz> {
   }
 
   Widget _buildContent(BuildContext context) {
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     final answer = viewModel.answer;
     if (answer == null || viewModel.options.isEmpty) {
       return const Center(child: Text('No flags available'));
