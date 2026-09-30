@@ -55,6 +55,14 @@ class FlagQuizViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Re-runs the initial load after a failure.
+  Future<void> retry() {
+    isLoading = true;
+    error = null;
+    _safeNotify();
+    return _initQuiz();
+  }
+
   Future<void> _initQuiz() async {
     try {
       countries = await _repo.getCountries();

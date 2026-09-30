@@ -34,6 +34,15 @@ class _FlagQuizState extends State<FlagQuiz> {
   }
 
   Widget _buildContent(BuildContext context) {
+    if (viewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final error = viewModel.error;
+    if (error != null) {
+      return _buildError(context, error);
+    }
+
     final answer = viewModel.answer;
     if (answer == null || viewModel.options.isEmpty) {
       return const Center(child: Text('No flags available'));
@@ -65,6 +74,38 @@ class _FlagQuizState extends State<FlagQuiz> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, String message) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 40,
+              color: theme.colorScheme.error,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: viewModel.retry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try again'),
+            ),
+          ],
         ),
       ),
     );
