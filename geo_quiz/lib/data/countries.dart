@@ -48,6 +48,30 @@ final switzerland = Country(
   population: 9154242,
   flagSvg: 'https://flagcdn.com/ch.svg',
 );
+final italy = Country(
+  code: 'IT',
+  name: 'Italy',
+  population: 58870763,
+  flagSvg: 'https://flagcdn.com/it.svg',
+);
+final spain = Country(
+  code: 'ES',
+  name: 'Spain',
+  population: 47351567,
+  flagSvg: 'https://flagcdn.com/es.svg',
+);
+final austria = Country(
+  code: 'AT',
+  name: 'Austria',
+  population: 9117283,
+  flagSvg: 'https://flagcdn.com/at.svg',
+);
+final portugal = Country(
+  code: 'PT',
+  name: 'Portugal',
+  population: 10305564,
+  flagSvg: 'https://flagcdn.com/pt.svg',
+);
 
 final List<Country> allCountries = [
   belgium,
@@ -56,4 +80,8 @@ final List<Country> allCountries = [
   france,
   luxembourg,
   switzerland,
+  italy,
+  spain,
+  austria,
+  portugal,
 ];
