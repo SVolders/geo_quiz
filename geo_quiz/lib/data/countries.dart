@@ -1,5 +1,5 @@
 class Country {
-  Country({
+  const Country({
     required this.code,
     required this.name,
     this.population,

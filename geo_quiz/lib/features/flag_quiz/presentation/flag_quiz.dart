@@ -16,7 +16,7 @@ class _FlagQuizState extends State<FlagQuiz> {
 
   void _onReset() {
     setState(() => selected = null);
-    viewModel.reset();
+    viewModel.nextQuestion();
   }
 
   void _onOptionPressed(Country country) {
@@ -31,10 +31,23 @@ class _FlagQuizState extends State<FlagQuiz> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: viewModel,
-      builder: (context, _) =>
-          Scaffold(body: SafeArea(child: _buildContent(context))),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('GeoQuiz'),
+        actions: [
+          IconButton(
+            onPressed: _onReset,
+            tooltip: 'New question',
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: viewModel,
+          builder: (context, _) => _buildContent(context),
+        ),
+      ),
     );
   }
 
@@ -58,8 +71,6 @@ class _FlagQuizState extends State<FlagQuiz> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildHeader(context),
-              const SizedBox(height: 20),
               _buildQuestion(context, answer),
               const SizedBox(height: 28),
               _buildOptions(answer),
@@ -69,30 +80,6 @@ class _FlagQuizState extends State<FlagQuiz> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            'FLAG QUIZ',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: colors.primary,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.4,
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: _onReset,
-          tooltip: 'New question',
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
     );
   }
 
@@ -134,7 +121,7 @@ class _FlagQuizState extends State<FlagQuiz> {
         final country = viewModel.options[index];
         return FlagButton(
           country: country,
-          isSelected: selected == country,
+          isSelected: selected?.code == country.code,
           isCorrect: country.code == answer.code,
           onPressed: () => _onOptionPressed(country),
         );
