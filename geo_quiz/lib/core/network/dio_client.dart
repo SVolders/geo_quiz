@@ -18,6 +18,7 @@ Future<List<Map<String, dynamic>>> getAllCountries() async {
     final response = await dio.get<Map<String, dynamic>>(
       'https://api.restcountries.com/countries/v5',
       queryParameters: {
+        'memberships.eurozone': 1,
         'classification.un_member': 1,
         'response_fields': wantedFields.join(','),
         'limit': limit,

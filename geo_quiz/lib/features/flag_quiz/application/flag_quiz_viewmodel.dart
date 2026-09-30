@@ -12,6 +12,7 @@ class FlagQuizViewModel extends ChangeNotifier {
   final CountriesRepository _repo;
 
   List<Country> countries = [];
+  List<Country> countriesNotAnswered = [];
   bool isLoading = true;
   String? error;
   bool _disposed = false;
@@ -36,7 +37,10 @@ class FlagQuizViewModel extends ChangeNotifier {
 
     selected = country;
     asked++;
-    if (country.code == answer?.code) score++;
+    if (country.code == answer?.code) {
+      score++;
+      countriesNotAnswered.removeWhere((c) => c.code == answer!.code);
+    }
 
     notifyListeners();
   }
@@ -66,6 +70,7 @@ class FlagQuizViewModel extends ChangeNotifier {
   Future<void> _initQuiz() async {
     try {
       countries = await _repo.getCountries();
+      countriesNotAnswered = [...countries];
       _pickQuestion(); // <-- now runs on real data
     } catch (e, st) {
       error = 'Could not load countries';
@@ -77,10 +82,23 @@ class FlagQuizViewModel extends ChangeNotifier {
   }
 
   void _pickQuestion() {
-    options = ([...countries]..shuffle()).take(4).toList();
-    answer = options.isNotEmpty
-        ? options[_random.nextInt(options.length)]
-        : null;
+    if (countriesNotAnswered.isEmpty) {
+      answer = null;
+      options = [];
+      return;
+    }
+
+    final correctCountry =
+        countriesNotAnswered[_random.nextInt(countriesNotAnswered.length)];
+    answer = correctCountry;
+
+    final distractors =
+        countries
+            .where((country) => country.code != correctCountry.code)
+            .toList()
+          ..shuffle();
+
+    options = [...distractors.take(3), correctCountry]..shuffle();
   }
 
   @override
