@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geo_quiz/data/countries.dart';
-
-import '../application/flag_quiz_controller.dart';
+import 'package:geo_quiz/features/flag_quiz/application/flag_quiz_viewmodel.dart';
 
 class FlagQuiz extends StatefulWidget {
   const FlagQuiz({super.key});
@@ -34,33 +32,42 @@ class _FlagQuizState extends State<FlagQuiz> {
       builder: (context, _) {
         return Scaffold(
           body: Center(
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
-                  children: [
-                    TextButton(
-                      onPressed: () => _onOptionPressed(0),
-                      child: Text(viewModel.options[0].name),
-                    ),
-                    TextButton(
-                      onPressed: () => _onOptionPressed(1),
-                      child: Text(viewModel.options[1].name),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => _onOptionPressed(0),
+                            child: Text(viewModel.options[0].name),
+                          ),
+                          TextButton(
+                            onPressed: () => _onOptionPressed(1),
+                            child: Text(viewModel.options[1].name),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => _onOptionPressed(2),
+                            child: Text(viewModel.options[2].name),
+                          ),
+                          TextButton(
+                            onPressed: () => _onOptionPressed(3),
+                            child: Text(viewModel.options[3].name),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    TextButton(
-                      onPressed: () => _onOptionPressed(2),
-                      child: Text(viewModel.options[2].name),
-                    ),
-                    TextButton(
-                      onPressed: () => _onOptionPressed(3),
-                      child: Text(viewModel.options[3].name),
-                    ),
-                  ],
-                ),
+
+                Text(viewModel.answer?.name ?? 'No answer'),
                 TextButton(onPressed: _onReset, child: Text("Reset")),
               ],
             ),

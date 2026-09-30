@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-
-import '../../../data/countries.dart';
+import 'package:geo_quiz/data/countries.dart';
 
 class FlagQuizViewModel extends ChangeNotifier {
   List<Country> options = [];
+  Country? answer;
+
   bool isLoading = false;
 
   FlagQuizViewModel() {
-    setOptions();
+    reset();
   }
 
   Future<void> setOptions() async {
@@ -25,7 +26,12 @@ class FlagQuizViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setAnswer() async {
+    answer = options.isNotEmpty ? (options..shuffle()).first : null;
+  }
+
   Future<void> reset() async {
     setOptions();
+    setAnswer();
   }
 }
