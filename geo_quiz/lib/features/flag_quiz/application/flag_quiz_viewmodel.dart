@@ -12,8 +12,38 @@ class FlagQuizViewModel extends ChangeNotifier {
 
   List<Country> options = [];
   Country? answer;
+  Country? selected;
+
+  int score = 0;
+  int asked = 0;
+
+  bool get hasAnswered => selected != null;
+
+  bool get isCorrect {
+    final choice = selected;
+    return choice != null && choice.code == answer?.code;
+  }
+
+  void selectAnswer(Country country) {
+    if (hasAnswered) return;
+
+    selected = country;
+    asked++;
+    if (country.code == answer?.code) score++;
+
+    notifyListeners();
+  }
 
   void nextQuestion() {
+    selected = null;
+    _pickQuestion();
+    notifyListeners();
+  }
+
+  void restart() {
+    score = 0;
+    asked = 0;
+    selected = null;
     _pickQuestion();
     notifyListeners();
   }

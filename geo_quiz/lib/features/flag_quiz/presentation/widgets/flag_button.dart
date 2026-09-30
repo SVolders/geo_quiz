@@ -8,25 +8,37 @@ class FlagButton extends StatelessWidget {
     required this.country,
     required this.isSelected,
     required this.isCorrect,
+    required this.isRevealed,
     required this.onPressed,
   });
 
   final Country country;
   final bool isSelected;
   final bool isCorrect;
+
+  /// True once the question has been answered: the correct flag is shown
+  /// regardless of what the player picked, and tapping does nothing.
+  final bool isRevealed;
+
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final borderColor = isSelected
-        ? isCorrect
-              ? colors.primary
-              : colors.error
-        : colors.outlineVariant;
+
+    final Color borderColor;
+    if (isRevealed && isCorrect) {
+      borderColor = colors.primary;
+    } else if (isSelected) {
+      borderColor = colors.error;
+    } else {
+      borderColor = colors.outlineVariant;
+    }
+
+    final isHighlighted = isSelected || (isRevealed && isCorrect);
 
     return InkWell(
-      onTap: onPressed,
+      onTap: isRevealed ? null : onPressed,
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
@@ -34,7 +46,10 @@ class FlagButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: borderColor,
+            width: isHighlighted ? 2 : 1,
+          ),
         ),
         child: Center(
           child: country.flagSvg == null
