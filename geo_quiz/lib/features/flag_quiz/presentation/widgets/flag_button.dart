@@ -49,20 +49,18 @@ class FlagButton extends StatelessWidget {
           border: Border.all(color: borderColor, width: isHighlighted ? 2 : 1),
         ),
         child: Center(
-          child: country.flagSvg == null
-              ? const Icon(Icons.flag_outlined)
-              : SvgPicture.network(
-                  country.flagSvg!,
-                  fit: BoxFit.contain,
-                  placeholderBuilder: (_) => const Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                  errorBuilder: (_, _, _) => const Icon(Icons.flag_outlined),
-                ),
+          child: SvgPicture.network(
+            country.flagSvg,
+            fit: BoxFit.contain,
+            placeholderBuilder: (_) => const Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            errorBuilder: (_, _, _) => const Icon(Icons.flag_outlined),
+          ),
         ),
       ),
     );
