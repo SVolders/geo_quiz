@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:geo_quiz/data/countries.dart';
 
@@ -8,7 +10,7 @@ class FlagQuizViewModel extends ChangeNotifier {
   bool isLoading = false;
 
   FlagQuizViewModel() {
-    reset();
+    setOptions();
   }
 
   Future<void> setOptions() async {
@@ -17,6 +19,9 @@ class FlagQuizViewModel extends ChangeNotifier {
 
     try {
       options = ([...allCountries]..shuffle()).take(4).toList();
+      answer = options.isNotEmpty
+          ? options[Random().nextInt(options.length)]
+          : null;
     } catch (e) {
       print('Error loading countries');
       options = [];
@@ -26,12 +31,7 @@ class FlagQuizViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setAnswer() async {
-    answer = options.isNotEmpty ? (options..shuffle()).first : null;
-  }
-
   Future<void> reset() async {
     setOptions();
-    setAnswer();
   }
 }
