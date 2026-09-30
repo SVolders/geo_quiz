@@ -1,16 +1,4 @@
-class Country {
-  const Country({
-    required this.code,
-    required this.name,
-    this.population,
-    this.flagSvg,
-  });
-
-  final String code;
-  final String name;
-  final int? population;
-  final String? flagSvg;
-}
+import 'package:geo_quiz/data/models/country.dart';
 
 final belgium = Country(
   code: 'BE',

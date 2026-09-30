@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:geo_quiz/data/countries.dart';
+import 'package:geo_quiz/data/models/country.dart';
+import 'package:geo_quiz/data/sample_countries.dart';
 
 class FlagQuizViewModel extends ChangeNotifier {
   FlagQuizViewModel() {

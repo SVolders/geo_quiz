@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geo_quiz/data/countries.dart';
+import 'package:geo_quiz/data/models/country.dart';
 
 class FlagButton extends StatelessWidget {
   const FlagButton({
@@ -46,10 +46,7 @@ class FlagButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: borderColor,
-            width: isHighlighted ? 2 : 1,
-          ),
+          border: Border.all(color: borderColor, width: isHighlighted ? 2 : 1),
         ),
         child: Center(
           child: country.flagSvg == null

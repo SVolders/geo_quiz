@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geo_quiz/data/countries.dart';
+import 'package:geo_quiz/data/models/country.dart';
 import 'package:geo_quiz/features/flag_quiz/application/flag_quiz_viewmodel.dart';
 import 'package:geo_quiz/features/flag_quiz/presentation/widgets/flag_button.dart';
 
