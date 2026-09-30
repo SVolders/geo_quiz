@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geo_quiz/data/models/country.dart';
+import 'package:geo_quiz/data/repositories/countries_repository.dart';
 import 'package:geo_quiz/features/flag_quiz/application/flag_quiz_viewmodel.dart';
 import 'package:geo_quiz/features/flag_quiz/presentation/widgets/flag_button.dart';
 
@@ -11,7 +12,7 @@ class FlagQuiz extends StatefulWidget {
 }
 
 class _FlagQuizState extends State<FlagQuiz> {
-  final FlagQuizViewModel viewModel = FlagQuizViewModel();
+  final FlagQuizViewModel viewModel = FlagQuizViewModel(CountriesRepository());
 
   @override
   void dispose() {

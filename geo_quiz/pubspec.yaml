@@ -7,16 +7,20 @@ environment:
   sdk: ^3.13.4
 
 dependencies:
+  dio: ^5.11.1
   flutter:
     sdk: flutter
   flutter_svg: ^2.3.0
   freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
 
 dev_dependencies:
   build_runner: ^2.16.1
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   freezed: ^4.0.2
+  json_serializable: ^6.14.1
 
 flutter:
   uses-material-design: true
