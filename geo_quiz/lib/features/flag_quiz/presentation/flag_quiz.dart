@@ -32,16 +32,7 @@ class _FlagQuizState extends State<FlagQuiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('GeoQuiz'),
-        actions: [
-          IconButton(
-            onPressed: _onReset,
-            tooltip: 'New question',
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('GeoQuiz')),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: viewModel,
@@ -82,21 +73,31 @@ class _FlagQuizState extends State<FlagQuiz> {
   Widget _buildQuestion(BuildContext context, Country answer) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Find the flag for',
-          style: textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Find the flag for',
+              style: textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              answer.name,
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          answer.name,
-          style: textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+        IconButton(
+          onPressed: _onReset,
+          tooltip: 'New question',
+          icon: const Icon(Icons.refresh),
         ),
       ],
     );
