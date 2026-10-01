@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geo_quiz/data/models/country.dart';
 import 'package:geo_quiz/data/providers/countries_provider.dart';
 import 'package:geo_quiz/features/flag_quiz/application/quiz_controller.dart';
 import 'package:geo_quiz/features/flag_quiz/application/quiz_state.dart';
+import 'package:geo_quiz/features/flag_quiz/domain/question.dart';
 import 'package:geo_quiz/features/flag_quiz/presentation/widgets/flag_button.dart';
 
 class FlagQuiz extends ConsumerWidget {
@@ -142,51 +144,25 @@ class _QuizBody extends ConsumerWidget {
     );
   }
 
+  /// Exhaustive over [Question]. A new variant makes this fail to compile
+  /// until it is handled.
   Widget _buildQuestion(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Find the flag for',
-          style: textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          quiz.answer.name,
-          style: textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
+    return switch (quiz.question) {
+      PickFlagQuestion(:final prompt) => _TextPrompt(
+        label: 'Find the flag for',
+        value: prompt,
+      ),
+    };
   }
 
   Widget _buildOptions(QuizController controller) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: quiz.options.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        childAspectRatio: 1.45,
+    return switch (quiz.question) {
+      PickFlagQuestion(:final options) => _FlagGrid(
+        options: options,
+        quiz: quiz,
+        onPressed: controller.selectAnswer,
       ),
-      itemBuilder: (context, index) {
-        final country = quiz.options[index];
-        return FlagButton(
-          country: country,
-          isSelected: quiz.selected?.code == country.code,
-          isCorrect: country.code == quiz.answer.code,
-          isRevealed: quiz.hasAnswered,
-          onPressed: () => controller.selectAnswer(country),
-        );
-      },
-    );
+    };
   }
 
   Widget _buildFeedback(BuildContext context) {
@@ -205,6 +181,74 @@ class _QuizBody extends ConsumerWidget {
             : theme.colorScheme.error,
         fontWeight: FontWeight.w600,
       ),
+    );
+  }
+}
+
+class _TextPrompt extends StatelessWidget {
+  const _TextPrompt({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FlagGrid extends StatelessWidget {
+  const _FlagGrid({
+    required this.options,
+    required this.quiz,
+    required this.onPressed,
+  });
+
+  final List<Country> options;
+  final QuizState quiz;
+  final ValueChanged<Country> onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: options.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+        childAspectRatio: 1.45,
+      ),
+      itemBuilder: (context, index) {
+        final country = options[index];
+        return FlagButton(
+          country: country,
+          isSelected: quiz.selected?.code == country.code,
+          isCorrect: country.code == quiz.question.answer.code,
+          isRevealed: quiz.hasAnswered,
+          onPressed: () => onPressed(country),
+        );
+      },
     );
   }
 }

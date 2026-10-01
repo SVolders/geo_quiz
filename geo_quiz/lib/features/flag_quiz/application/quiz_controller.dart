@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:geo_quiz/data/models/country.dart';
 import 'package:geo_quiz/data/providers/countries_provider.dart';
 import 'package:geo_quiz/features/flag_quiz/application/quiz_state.dart';
+import 'package:geo_quiz/features/flag_quiz/domain/question.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quiz_controller.g.dart';
@@ -23,7 +24,7 @@ class QuizController extends _$QuizController {
       );
     }
 
-    return _newQuestion(countries);
+    return _newRound(countries);
   }
 
   void selectAnswer(Country country) {
@@ -34,7 +35,9 @@ class QuizController extends _$QuizController {
       current.copyWith(
         selected: country,
         asked: current.asked + 1,
-        score: current.score + (country.code == current.answer.code ? 1 : 0),
+        score:
+            current.score +
+            (country.code == current.question.answer.code ? 1 : 0),
       ),
     );
   }
@@ -44,7 +47,7 @@ class QuizController extends _$QuizController {
     if (current == null) return;
 
     state = AsyncData(
-      _newQuestion(
+      _newRound(
         current.countries,
         score: current.score,
         asked: current.asked,
@@ -56,27 +59,33 @@ class QuizController extends _$QuizController {
     final current = state.value;
     if (current == null) return;
 
-    state = AsyncData(_newQuestion(current.countries));
+    state = AsyncData(_newRound(current.countries));
   }
 
   /// Builds a fresh state rather than using `copyWith`, because freezed's
   /// `copyWith` cannot set a nullable field back to `null` — passing
   /// `selected: null` is indistinguishable from omitting it.
-  QuizState _newQuestion(
+  QuizState _newRound(
     List<Country> countries, {
     int score = 0,
     int asked = 0,
   }) {
+    return QuizState(
+      countries: countries,
+      question: _newQuestion(countries),
+      score: score,
+      asked: asked,
+    );
+  }
+
+  Question _newQuestion(List<Country> countries) {
     final options = ([...countries]..shuffle(_random))
         .take(_optionCount)
         .toList();
 
-    return QuizState(
-      countries: countries,
+    return PickFlagQuestion(
       options: options,
       answer: options[_random.nextInt(options.length)],
-      score: score,
-      asked: asked,
     );
   }
 }

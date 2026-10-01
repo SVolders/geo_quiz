@@ -21,6 +21,13 @@ class CountriesRepository {
       return null;
     }
 
-    return Country(code: code, name: name);
+    // `capitals` is a list — a few countries have several, a few have none.
+    // Match the first entry's name, or fall through to null.
+    final capital = switch (row['capitals']) {
+      [{'name': final String first}, ...] when first.isNotEmpty => first,
+      _ => null,
+    };
+
+    return Country(code: code, name: name, capital: capital);
   }
 }

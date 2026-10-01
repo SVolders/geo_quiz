@@ -8,6 +8,10 @@ abstract class Country with _$Country {
   const factory Country({
     required String code,
     required String name,
+
+    /// Null for the handful of entries without one (Antarctica, some
+    /// territories). Modes that need a capital must filter on it.
+    String? capital,
     int? population,
   }) = _Country;
 

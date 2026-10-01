@@ -8,7 +8,8 @@ const apiKey = String.fromEnvironment('RESTCOUNTRIES_API_KEY');
 
 final wantedFields = [
   'names.common',
-  'codes.alpha_2'
+  'codes.alpha_2',
+  'capitals.name',
 ];
 
 Future<List<Map<String, dynamic>>> getAllCountries() async {
