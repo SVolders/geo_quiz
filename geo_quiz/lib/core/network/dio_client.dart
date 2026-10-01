@@ -2,14 +2,24 @@ import "package:dio/dio.dart";
 
 final dio = Dio();
 
+/// Supplied at build time, never committed:
+///   flutter run --dart-define=RESTCOUNTRIES_API_KEY=your_key
+const apiKey = String.fromEnvironment('RESTCOUNTRIES_API_KEY');
+
 final wantedFields = [
   'names.common',
   'codes.alpha_2'
 ];
 
 Future<List<Map<String, dynamic>>> getAllCountries() async {
-  dio.options.headers['Authorization'] =
-      'Bearer rc_live_8a5bb695fa2047e4b229ffe9764c77cf';
+  if (apiKey.isEmpty) {
+    throw StateError(
+      'Missing RESTCOUNTRIES_API_KEY. Pass it with '
+      '--dart-define=RESTCOUNTRIES_API_KEY=your_key',
+    );
+  }
+
+  dio.options.headers['Authorization'] = 'Bearer $apiKey';
   const limit = 100;
   var offset = 0;
   final countries = <Map<String, dynamic>>[];
