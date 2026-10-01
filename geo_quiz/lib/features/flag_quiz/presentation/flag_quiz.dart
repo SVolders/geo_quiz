@@ -1,85 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:geo_quiz/data/models/country.dart';
-import 'package:geo_quiz/data/repositories/countries_repository.dart';
-import 'package:geo_quiz/features/flag_quiz/application/flag_quiz_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geo_quiz/data/providers/countries_provider.dart';
+import 'package:geo_quiz/features/flag_quiz/application/quiz_controller.dart';
+import 'package:geo_quiz/features/flag_quiz/application/quiz_state.dart';
 import 'package:geo_quiz/features/flag_quiz/presentation/widgets/flag_button.dart';
 
-class FlagQuiz extends StatefulWidget {
+class FlagQuiz extends ConsumerWidget {
   const FlagQuiz({super.key});
 
   @override
-  State<FlagQuiz> createState() => _FlagQuizState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(quizControllerProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('GeoQuiz'),
+        actions: [
+          IconButton(
+            onPressed: state.hasValue
+                ? ref.read(quizControllerProvider.notifier).restart
+                : null,
+            tooltip: 'Restart',
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: state.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => _ErrorView(
+            message: '$error',
+            onRetry: () => ref.invalidate(countriesProvider),
+          ),
+          data: (quiz) => _QuizBody(quiz),
+        ),
+      ),
+    );
+  }
 }
 
-class _FlagQuizState extends State<FlagQuiz> {
-  final FlagQuizViewModel viewModel = FlagQuizViewModel(CountriesRepository());
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
 
-  @override
-  void dispose() {
-    viewModel.dispose();
-    super.dispose();
-  }
+  final String message;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('GeoQuiz')),
-      body: SafeArea(
-        child: ListenableBuilder(
-          listenable: viewModel,
-          builder: (context, _) => _buildContent(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final error = viewModel.error;
-    if (error != null) {
-      return _buildError(context, error);
-    }
-
-    final answer = viewModel.answer;
-    if (answer == null || viewModel.options.isEmpty) {
-      return const Center(child: Text('No flags available'));
-    }
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 640),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildScore(context),
-              const SizedBox(height: 20),
-              _buildQuestion(context, answer),
-              const SizedBox(height: 28),
-              _buildOptions(answer),
-              const SizedBox(height: 20),
-              _buildFeedback(context),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: viewModel.hasAnswered
-                    ? viewModel.nextQuestion
-                    : null,
-                child: const Text('Next question'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildError(BuildContext context, String message) {
     final theme = Theme.of(context);
 
     return Center(
@@ -101,11 +68,50 @@ class _FlagQuizState extends State<FlagQuiz> {
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: viewModel.retry,
+              onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('Try again'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuizBody extends ConsumerWidget {
+  const _QuizBody(this.quiz);
+
+  final QuizState quiz;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(quizControllerProvider.notifier);
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildScore(context),
+              const SizedBox(height: 20),
+              _buildQuestion(context),
+              const SizedBox(height: 28),
+              _buildOptions(controller),
+              const SizedBox(height: 20),
+              _buildFeedback(context),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: quiz.hasAnswered ? controller.nextQuestion : null,
+                child: const Text('Next question'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -125,7 +131,7 @@ class _FlagQuizState extends State<FlagQuiz> {
           ),
         ),
         Text(
-          '${viewModel.score} / ${viewModel.asked}',
+          '${quiz.score} / ${quiz.asked}',
           style: theme.textTheme.titleMedium?.copyWith(
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.w700,
@@ -136,44 +142,34 @@ class _FlagQuizState extends State<FlagQuiz> {
     );
   }
 
-  Widget _buildQuestion(BuildContext context, Country answer) {
+  Widget _buildQuestion(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Find the flag for',
-              style: textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              answer.name,
-              style: textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
+        Text(
+          'Find the flag for',
+          style: textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-        IconButton(
-          onPressed: () => viewModel.restart(),
-          tooltip: 'New question',
-          icon: const Icon(Icons.refresh),
+        const SizedBox(height: 4),
+        Text(
+          quiz.answer.name,
+          style: textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildOptions(Country answer) {
+  Widget _buildOptions(QuizController controller) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: viewModel.options.length,
+      itemCount: quiz.options.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 14,
@@ -181,13 +177,13 @@ class _FlagQuizState extends State<FlagQuiz> {
         childAspectRatio: 1.45,
       ),
       itemBuilder: (context, index) {
-        final country = viewModel.options[index];
+        final country = quiz.options[index];
         return FlagButton(
           country: country,
-          isSelected: viewModel.selected?.code == country.code,
-          isCorrect: country.code == answer.code,
-          isRevealed: viewModel.hasAnswered,
-          onPressed: () => viewModel.selectAnswer(country),
+          isSelected: quiz.selected?.code == country.code,
+          isCorrect: country.code == quiz.answer.code,
+          isRevealed: quiz.hasAnswered,
+          onPressed: () => controller.selectAnswer(country),
         );
       },
     );
@@ -195,17 +191,18 @@ class _FlagQuizState extends State<FlagQuiz> {
 
   Widget _buildFeedback(BuildContext context) {
     final theme = Theme.of(context);
-    final isCorrect = viewModel.isCorrect;
 
     return Text(
-      !viewModel.hasAnswered
+      !quiz.hasAnswered
           ? ''
-          : isCorrect
+          : quiz.isCorrect
           ? 'Correct!'
           : 'Not quite — the highlighted flag was right.',
       textAlign: TextAlign.center,
       style: theme.textTheme.titleMedium?.copyWith(
-        color: isCorrect ? theme.colorScheme.primary : theme.colorScheme.error,
+        color: quiz.isCorrect
+            ? theme.colorScheme.primary
+            : theme.colorScheme.error,
         fontWeight: FontWeight.w600,
       ),
     );

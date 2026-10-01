@@ -1,5 +1,11 @@
 import 'package:geo_quiz/core/network/dio_client.dart';
 import 'package:geo_quiz/data/models/country.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'countries_repository.g.dart';
+
+@Riverpod(keepAlive: true)
+CountriesRepository countriesRepository(Ref ref) => CountriesRepository();
 
 class CountriesRepository {
   Future<List<Country>> getCountries() async {
